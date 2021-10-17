@@ -1,12 +1,7 @@
 defmodule IsMartOpenApi.Info do
   defmodule Information do
+    @derive Jason.Encoder
     defstruct [:name, :state, :open_time, :close_time, :next_holiday]
-  end
-
-  defimpl Jason.Encoder, for: Information do
-    def encode(value, opts) do
-      Jason.Encode.map(Map.take(value, [:name, :state, :open_time, :close_time, :next_holiday]), opts)
-    end
   end
 
   @spec info!(mart :: String.t(), keyword :: String.t()) :: Information | nil
