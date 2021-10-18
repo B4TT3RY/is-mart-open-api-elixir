@@ -27,7 +27,8 @@ defmodule IsMartOpenApi.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:httpoison, "~> 1.8"},
       {:timex, "~> 3.7"},
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      {:floki, "~> 0.31.0"}
     ]
   end
 end

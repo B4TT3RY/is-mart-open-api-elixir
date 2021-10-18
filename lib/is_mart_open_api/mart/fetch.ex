@@ -36,4 +36,24 @@ defmodule IsMartOpenApi.Fetch do
       |> Jason.decode!()
       |> Map.fetch!("dataList")
   end
+
+  @spec do_fetch_homeplus_html!(keyword :: String.t()) :: any
+  def do_fetch_homeplus_html!(keyword) do
+    response =
+      HTTPoison.post!(
+        @base_url.homeplus,
+        {:form,
+          [
+            { "__VIEWSTATE", @homeplus_viewstate },
+            { "ctl00$ContentPlaceHolder1$srch_name", keyword },
+            { "ctl00$ContentPlaceHolder1$storetype1", "on" }
+          ]
+        },
+        [
+          {"User-Agent", @user_agent}
+        ]
+      )
+
+      response.body
+  end
 end

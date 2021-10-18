@@ -10,6 +10,16 @@ defmodule IsMartOpenApi.Search do
     |> Enum.map(fn element -> element["NAME"] |> String.replace("이마트 트레이더스 ", "") end)
   end
 
+  def search!("homeplus", keyword) do
+    document =
+      IsMartOpenApi.Fetch.do_fetch_homeplus_html!(keyword)
+      |> Floki.parse_document!()
+
+    document
+    |> Floki.find("span.name > a")
+    |> Enum.map(fn find -> find |> Floki.text end)
+  end
+
   def search!(_, _) do
     []
   end
