@@ -6,6 +6,22 @@ defmodule IsMartOpenApi.Router do
   plug :match
   plug :dispatch
 
+  get "/search/:mart" do
+    result = IsMartOpenApi.Search.search!(mart, "")
+
+    body = if length(result) == 0 do
+      %{:error => "검색 결과가 없습니다."}
+      |> Jason.encode!()
+    else
+      %{:result => result}
+      |> Jason.encode!()
+    end
+
+    conn
+      |> Plug.Conn.put_resp_header("Content-Type", "application/json; charset=utf8")
+      |> send_resp(200, body)
+  end
+
   get "/search/:mart/:keyword" do
     result = IsMartOpenApi.Search.search!(mart, keyword)
 
