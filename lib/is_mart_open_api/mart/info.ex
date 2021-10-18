@@ -10,17 +10,24 @@ defmodule IsMartOpenApi.Info do
     |> Enum.filter(fn element -> element["NAME"] == "이마트 " <> name end)
     |> Enum.at(0)
 
+    today = Timex.today("Asia/Seoul")
     now = Timex.now("Asia/Seoul")
-    open_time = Timex.parse!(json["OPEN_SHOPPING_TIME"], "%H:%M", :strftime);
-    close_time = Timex.parse!(json["CLOSE_SHOPPING_TIME"], "%H:%M", :strftime);
+    open_time =
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(json["OPEN_SHOPPING_TIME"], "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
+    close_time =
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(json["CLOSE_SHOPPING_TIME"], "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
     next_holiday = Timex.parse!(json["HOLIDAY_DAY1_YYYYMMDD"], "%Y%m%d", :strftime);
 
     state = cond do
-      Date.compare(now, next_holiday) == :eq ->
+      Timex.compare(now, next_holiday) == 0 ->
         :holiday_closed
-      Time.compare(now, open_time) == :lt ->
+      Timex.compare(now, open_time) == -1 ->
         :before_open
-      Time.compare(now, close_time) == :gt ->
+      Timex.compare(now, close_time) == 1 ->
         :after_closed
       true ->
         :open
@@ -40,17 +47,24 @@ defmodule IsMartOpenApi.Info do
     |> Enum.filter(fn element -> element["NAME"] == "이마트 트레이더스 " <> name end)
     |> Enum.at(0)
 
+    today = Timex.today("Asia/Seoul")
     now = Timex.now("Asia/Seoul")
-    open_time = Timex.parse!(json["OPEN_SHOPPING_TIME"], "%H:%M", :strftime);
-    close_time = Timex.parse!(json["CLOSE_SHOPPING_TIME"], "%H:%M", :strftime);
+    open_time =
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(json["OPEN_SHOPPING_TIME"], "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
+    close_time =
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(json["CLOSE_SHOPPING_TIME"], "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
     next_holiday = Timex.parse!(json["HOLIDAY_DAY1_YYYYMMDD"], "%Y%m%d", :strftime);
 
     state = cond do
-      Date.compare(now, next_holiday) == :eq ->
+      Timex.compare(now, next_holiday) == 0 ->
         :holiday_closed
-      Time.compare(now, open_time) == :lt ->
+      Timex.compare(now, open_time) == -1 ->
         :before_open
-      Time.compare(now, close_time) == :gt ->
+      Timex.compare(now, close_time) == 1 ->
         :after_closed
       true ->
         :open
@@ -85,13 +99,22 @@ defmodule IsMartOpenApi.Info do
       |> Floki.text()
       |> String.split("~")
 
+    today = Timex.today()
     now = Timex.now("Asia/Seoul")
-    open_time = Timex.parse!("#{now |> Timex.format!("%Y%m%d", :strftime)} #{time |> Enum.at(0)} +0900", "%Y%m%d %H:%M %z", :strftime)
+
+    open_time =
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(time |> Enum.at(0), "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
     close_time = if time |> Enum.at(1) |> String.slice(0..1) == "24" do
-      Timex.parse!("#{now |> Timex.format!("%Y%m%d", :strftime)} 00:#{time |> Enum.at(1) |> String.slice(3..4)} +0900", "%Y%m%d %H:%M %z", :strftime)
+      {Date.to_erl(today), Time.to_erl(Timex.parse!("00:#{time |> Enum.at(1) |> String.slice(3..4)}", "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
       |> Date.add(1)
     else
-      Timex.parse!("#{now |> Timex.format!("%Y%m%d", :strftime)} #{time |> Enum.at(1)} +0900", "%Y%m%d %H:%M %z", :strftime)
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(time |> Enum.at(1), "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
     end
     next_holiday = Timex.parse!(element |> Floki.find(".off") |> Floki.text(), "%Y-%m-%d", :strftime)
 
