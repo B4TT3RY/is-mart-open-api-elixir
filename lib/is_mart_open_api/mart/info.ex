@@ -40,12 +40,28 @@ defmodule IsMartOpenApi.Info do
     |> Enum.filter(fn element -> element["NAME"] == "이마트 트레이더스 " <> keyword end)
     |> Enum.at(0)
 
+    now = Timex.now("Asia/Seoul")
+    open_time = Timex.parse!(json["OPEN_SHOPPING_TIME"], "%H:%M", :strftime);
+    close_time = Timex.parse!(json["CLOSE_SHOPPING_TIME"], "%H:%M", :strftime);
+    next_holiday = Timex.parse!(json["HOLIDAY_DAY1_YYYYMMDD"], "%Y%m%d", :strftime);
+
+    state = cond do
+      Date.compare(now, next_holiday) == :eq ->
+        :holiday_closed
+      Time.compare(now, open_time) == :lt ->
+        :before_open
+      Time.compare(now, close_time) == :gt ->
+        :after_closed
+      true ->
+        :open
+    end
+
     %Information {
       name: json["NAME"],
-      state: :open,
-      open_time: json["OPEN_SHOPPING_TIME"],
-      close_time: json["CLOSE_SHOPPING_TIME"],
-      next_holiday: json["HOLIDAY_DAY1_YYYYMMDD"]
+      state: state,
+      open_time: open_time |> Timex.format!("%H:%M:%S", :strftime),
+      close_time: close_time |> Timex.format!("%H:%M:%S", :strftime),
+      next_holiday: next_holiday |> Timex.format!("%Y-%m-%d", :strftime),
     }
   end
 
