@@ -4,10 +4,10 @@ defmodule IsMartOpenApi.Info do
     defstruct [:name, :state, :open_time, :close_time, :next_holiday]
   end
 
-  @spec info!(mart :: String.t(), keyword :: String.t()) :: Information | nil
-  def info!("emart", keyword) do
-    json = IsMartOpenApi.Fetch.do_fetch_emart_json!("EM", keyword)
-    |> Enum.filter(fn element -> element["NAME"] == "이마트 " <> keyword end)
+  @spec info!(mart :: String.t(), name :: String.t()) :: Information | nil
+  def info!("emart", name) do
+    json = IsMartOpenApi.Fetch.do_fetch_emart_json!("EM", name)
+    |> Enum.filter(fn element -> element["NAME"] == "이마트 " <> name end)
     |> Enum.at(0)
 
     now = Timex.now("Asia/Seoul")
@@ -35,9 +35,9 @@ defmodule IsMartOpenApi.Info do
     }
   end
 
-  def info!("traders", keyword) do
-    json = IsMartOpenApi.Fetch.do_fetch_emart_json!("TR", keyword)
-    |> Enum.filter(fn element -> element["NAME"] == "이마트 트레이더스 " <> keyword end)
+  def info!("traders", name) do
+    json = IsMartOpenApi.Fetch.do_fetch_emart_json!("TR", name)
+    |> Enum.filter(fn element -> element["NAME"] == "이마트 트레이더스 " <> name end)
     |> Enum.at(0)
 
     now = Timex.now("Asia/Seoul")
