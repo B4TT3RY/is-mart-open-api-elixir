@@ -25,11 +25,11 @@ defmodule IsMartOpenApi.Router do
   get "/info/:mart/:name" do
     result = IsMartOpenApi.Info.info!(mart, name)
 
-    body = if result == nil do
-      %{:error => "검색 결과가 없습니다."}
+    body = if result != nil do
+      result
       |> Jason.encode!()
     else
-      result
+      %{:error => "검색 결과가 없습니다."}
       |> Jason.encode!()
     end
 
