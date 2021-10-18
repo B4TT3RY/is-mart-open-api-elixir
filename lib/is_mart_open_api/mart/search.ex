@@ -18,11 +18,13 @@ defmodule IsMartOpenApi.Search do
     document
     |> Floki.find("span.name > a")
     |> Enum.map(fn find -> find |> Floki.text end)
+    |> Enum.filter(fn name -> name |> String.contains?(keyword) end)
   end
 
   def search!("costco", keyword) do
     IsMartOpenApi.Fetch.do_fetch_costco_json!(keyword)
     |> Enum.map(fn element -> element["displayName"] end)
+    |> Enum.filter(fn name -> name |> String.contains?(keyword) end)
   end
 
   def search!(_, _) do
