@@ -59,8 +59,7 @@ defmodule IsMartOpenApi.Fetch do
 
   @spec do_fetch_costco_json!(keyword :: String.t()) :: list()
   def do_fetch_costco_json!(keyword) do
-    IO.puts "#{@base_url.costco}#{keyword}"
-    response = HTTPoison.get!("#{@base_url.costco}#{keyword}")
+    response = HTTPoison.get!("#{@base_url.costco}#{keyword |> URI.encode()}")
 
     response.body
     |> Jason.decode!()
