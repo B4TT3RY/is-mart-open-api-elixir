@@ -54,6 +54,22 @@ defmodule IsMartOpenApi.Fetch do
         ]
       )
 
-      response.body
+    response.body
+  end
+
+  @spec do_fetch_costco_json!(keyword :: String.t()) :: list()
+  def do_fetch_costco_json!(keyword) do
+    IO.puts "#{@base_url.costco}#{keyword}"
+    response =
+      HTTPoison.get!(
+        "#{@base_url.costco}#{keyword}",
+        [
+          {"User-Agent", @user_agent}
+        ]
+      )
+
+    response.body
+    |> Jason.decode!()
+    |> Map.fetch!("data")
   end
 end

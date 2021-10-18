@@ -20,6 +20,11 @@ defmodule IsMartOpenApi.Search do
     |> Enum.map(fn find -> find |> Floki.text end)
   end
 
+  def search!("costco", keyword) do
+    IsMartOpenApi.Fetch.do_fetch_costco_json!(keyword)
+    |> Enum.map(fn element -> element["displayName"] end)
+  end
+
   def search!(_, _) do
     []
   end
