@@ -23,7 +23,7 @@ defmodule IsMartOpenApi.Info do
     next_holiday = Timex.parse!(json["HOLIDAY_DAY1_YYYYMMDD"], "%Y%m%d", :strftime);
 
     state = cond do
-      Timex.compare(now, next_holiday) == 0 ->
+      Timex.compare(today, next_holiday) == 0 ->
         :holiday_closed
       Timex.compare(now, open_time) == -1 ->
         :before_open
@@ -60,7 +60,7 @@ defmodule IsMartOpenApi.Info do
     next_holiday = Timex.parse!(json["HOLIDAY_DAY1_YYYYMMDD"], "%Y%m%d", :strftime);
 
     state = cond do
-      Timex.compare(now, next_holiday) == 0 ->
+      Timex.compare(today, next_holiday) == 0 ->
         :holiday_closed
       Timex.compare(now, open_time) == -1 ->
         :before_open
