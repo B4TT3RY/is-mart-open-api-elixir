@@ -57,7 +57,7 @@
   ```json
   {
     "close_time": "23:00:00",
-    "name": "이마트 경산점",
+    "name": "경산점",
     "next_holiday": "2021-10-27",
     "open_time": "10:00:00",
     "state": "open"
