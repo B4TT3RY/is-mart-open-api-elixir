@@ -9,7 +9,7 @@ defmodule IsMartOpenApi.Fetch do
 
   @homeplus_viewstate "/wEPDwUJLTc2MDkzMDI3D2QWAmYPZBYCAgUPZBYCAgEPZBYCAgEPEGRkFgFmZBgBBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WAwUkY3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRzdG9yZXR5cGUxBSRjdGwwMCRDb250ZW50UGxhY2VIb2xkZXIxJHN0b3JldHlwZTIFJGN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkc3RvcmV0eXBlM+aYO9PJofU5uQQJJZRZ2bboir3I"
 
-  @spec do_fetch_emart_json!(search_type :: String.t(), keyword :: String.t()) :: any
+  @spec do_fetch_emart_json!(search_type :: String.t(), keyword :: String.t()) :: list()
   def do_fetch_emart_json!(search_type, keyword) do
     today = Timex.today("Asia/Seoul")
 
@@ -32,12 +32,12 @@ defmodule IsMartOpenApi.Fetch do
         ]
       )
 
-      response.body
-      |> Jason.decode!()
-      |> Map.fetch!("dataList")
+    response.body
+    |> Jason.decode!()
+    |> Map.fetch!("dataList")
   end
 
-  @spec do_fetch_homeplus_html!(keyword :: String.t()) :: any
+  @spec do_fetch_homeplus_html!(keyword :: String.t()) :: String.t()
   def do_fetch_homeplus_html!(keyword) do
     response =
       HTTPoison.post!(
