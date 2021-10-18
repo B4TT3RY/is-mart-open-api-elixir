@@ -138,6 +138,51 @@ defmodule IsMartOpenApi.Info do
     }
   end
 
+  def info!("costco", name) do
+    json = IsMartOpenApi.Fetch.do_fetch_costco_json!(name)
+    |> Enum.filter(fn element -> element["displayName"] == name end)
+    |> Enum.at(0)
+
+    today = Timex.today("Asia/Seoul")
+    now = Timex.now("Asia/Seoul")
+
+    [ open_time, close_time ] =
+      Regex.run(~r/오전 \d+:\d+ - 오후 \d+:\d+/, json["storeContent"])
+      |> Enum.at(0)
+      |> String.replace("오전", "AM")
+      |> String.replace("오후", "PM")
+      |> String.split(" - ")
+
+    open_time =
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(open_time, "{AM} {h12}:{m}"))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
+    close_time =
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(close_time, "{AM} {h12}:{m}"))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
+    # next_holiday = Timex.parse!(json["HOLIDAY_DAY1_YYYYMMDD"], "%Y%m%d", :strftime);
+
+    state = cond do
+      # Timex.compare(today, next_holiday) == 0 ->
+      #   :holiday_closed
+      Timex.compare(now, open_time) == -1 ->
+        :before_open
+      Timex.compare(now, close_time) == 1 ->
+        :after_closed
+      true ->
+        :open
+    end
+
+    %Information {
+      name: json["displayName"],
+      state: state,
+      open_time: open_time |> Timex.format!("%H:%M:%S", :strftime),
+      close_time: close_time |> Timex.format!("%H:%M:%S", :strftime),
+      next_holiday: nil,
+    }
+  end
+
   def info!(_, _) do
     nil
   end
