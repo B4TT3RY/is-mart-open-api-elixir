@@ -34,7 +34,7 @@ defmodule IsMartOpenApi.Info do
     end
 
     %Information {
-      name: json["NAME"],
+      name: json["NAME"] |> String.replace("이마트 ", ""),
       state: state,
       open_time: open_time |> Timex.format!("%H:%M:%S", :strftime),
       close_time: close_time |> Timex.format!("%H:%M:%S", :strftime),
@@ -71,7 +71,7 @@ defmodule IsMartOpenApi.Info do
     end
 
     %Information {
-      name: json["NAME"],
+      name: json["NAME"] |> String.replace("이마트 트레이더스 ", ""),
       state: state,
       open_time: open_time |> Timex.format!("%H:%M:%S", :strftime),
       close_time: close_time |> Timex.format!("%H:%M:%S", :strftime),
