@@ -12,6 +12,8 @@
 
 - URL
 
+  `GET /search/:mart`
+
   `GET /search/:mart/:keyword`
 
 - URL Params
