@@ -161,11 +161,11 @@ defmodule IsMartOpenApi.Info do
       {Date.to_erl(today), Time.to_erl(Timex.parse!(close_time, "{AM} {h12}:{m}"))}
       |> NaiveDateTime.from_erl!()
       |> DateTime.from_naive!("Asia/Seoul")
-    # next_holiday = Timex.parse!(json["HOLIDAY_DAY1_YYYYMMDD"], "%Y%m%d", :strftime);
+    next_holiday = parse_costco_holiday(json["storeContent"]);
 
     state = cond do
-      # Timex.compare(today, next_holiday) == 0 ->
-      #   :holiday_closed
+      Timex.compare(today, next_holiday) == 0 ->
+        :holiday_closed
       Timex.compare(now, open_time) == -1 ->
         :before_open
       Timex.compare(now, close_time) == 1 ->
@@ -179,11 +179,84 @@ defmodule IsMartOpenApi.Info do
       state: state,
       open_time: open_time |> Timex.format!("%H:%M:%S", :strftime),
       close_time: close_time |> Timex.format!("%H:%M:%S", :strftime),
-      next_holiday: nil,
+      next_holiday: next_holiday,
     }
   end
 
   def info!(_, _) do
     nil
+  end
+
+  defp parse_costco_holiday(store_content) do
+    result = Regex.run(~r/매월 ([첫둘셋넷])째, ([첫둘셋넷])째 ([월화수목금토일])요일/u, store_content)
+    if (result != nil) do
+      [ _, first_week, second_week, day ] = result
+      first_week = week_to_number(first_week)
+      second_week = week_to_number(second_week)
+      day = day_to_number(day)
+
+      today = Timex.now("Asia/Seoul")
+
+      first = calculate_date_from_today(first_week, day)
+      second = calculate_date_from_today(second_week, day)
+      cond do
+        Timex.compare(today, first) != 1 -> first
+        Timex.compare(today, second) != 1 -> second
+        true -> nil
+      end
+    else
+      [ _, first_week, first_day, second_week, second_day ] =
+        Regex.run(~r/매월 ([첫둘셋넷])째 ([월화수목금토일])요일, ([첫둘셋넷])째 ([월화수목금토일])요일/u, store_content)
+      first_week = week_to_number(first_week)
+      second_week = week_to_number(second_week)
+      first_day = day_to_number(first_day)
+      second_day = day_to_number(second_day)
+
+      today = Timex.now("Asia/Seoul")
+
+      first = calculate_date_from_today(first_week, first_day)
+      second = calculate_date_from_today(second_week, second_day)
+      cond do
+        Timex.compare(today, first) != 1 -> first
+        Timex.compare(today, second) != 1 -> second
+        true -> nil
+      end
+    end
+  end
+
+  defp week_to_number(input) do
+    case input do
+      "첫" -> 1
+      "둘" -> 2
+      "셋" -> 3
+      "넷" -> 4
+    end
+  end
+
+  defp day_to_number(input) do
+    case input do
+      "월" -> 0
+      "화" -> 1
+      "수" -> 2
+      "목" -> 3
+      "금" -> 4
+      "토" -> 5
+      "일" -> 6
+    end
+  end
+
+  defp calculate_date_from_today(week, day) do
+    today = Timex.today("Asia/Seoul")
+    today_week =
+      today
+      |> Timex.week_of_month()
+    today_day =
+      today
+      |> Timex.days_to_beginning_of_week()
+
+    diff = 7 * (week - today_week) + abs(day - today_day)
+
+    today
+    |> Date.add(diff)
   end
 end
