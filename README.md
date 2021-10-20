@@ -118,7 +118,7 @@
 
 - URL
 
-  `GET /search/emarteveryday/:id`
+  `GET /info/emarteveryday/:id`
 
 - URL Params
   
