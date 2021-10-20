@@ -4,7 +4,9 @@ defmodule IsMartOpenApi.Fetch do
   @base_url %{
     emart: "https://store.emart.com/branch/searchList.do",
     homeplus: "https://corporate.homeplus.co.kr/STORE/HyperMarket.aspx",
-    costco: "https://www.costco.co.kr/store-finder/search?q="
+    costco: "https://www.costco.co.kr/store-finder/search?q=",
+    emart_everyday_list: "http://www.emarteveryday.co.kr/branch/searchBranch.jsp",
+    emart_everyday_info: "http://www.emarteveryday.co.kr/branch/branchView.jsp"
   }
 
   @homeplus_viewstate "/wEPDwUJLTc2MDkzMDI3D2QWAmYPZBYCAgUPZBYCAgEPZBYCAgEPEGRkFgFmZBgBBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WAwUkY3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRzdG9yZXR5cGUxBSRjdGwwMCRDb250ZW50UGxhY2VIb2xkZXIxJHN0b3JldHlwZTIFJGN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkc3RvcmV0eXBlM+aYO9PJofU5uQQJJZRZ2bboir3I"
@@ -64,5 +66,40 @@ defmodule IsMartOpenApi.Fetch do
     response.body
     |> Jason.decode!()
     |> Map.fetch!("data")
+  end
+
+  @spec do_fetch_emart_everyday_list_json!(keyword :: String.t()) :: list()
+  def do_fetch_emart_everyday_list_json!(keyword) do
+    response =
+      HTTPoison.post!(
+        @base_url.emart_everyday_list,
+        {},
+        [
+          {"User-Agent", @user_agent}
+        ]
+      )
+
+    response.body
+    |> Jason.decode!()
+    |> Map.fetch!("branchs")
+    |> Enum.filter(fn json -> json["name"] |> String.contains?(keyword) end)
+  end
+
+  @spec do_fetch_emart_everyday_info_json!(keyword :: String.t()) :: String.t()
+  def do_fetch_emart_everyday_info_json!(id) do
+    response =
+      HTTPoison.post!(
+        @base_url.emart_everyday_info,
+        {:form,
+          [
+            { "seq", id }
+          ]
+        },
+        [
+          {"User-Agent", @user_agent}
+        ]
+      )
+
+    response.body
   end
 end
