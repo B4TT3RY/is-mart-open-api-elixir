@@ -73,13 +73,19 @@ defmodule IsMartOpenApi.Fetch do
     response =
       HTTPoison.post!(
         @base_url.emart_everyday_list,
-        {},
+        {:form,
+          [
+            { "region", "" },
+          ]
+        },
         [
           {"User-Agent", @user_agent}
         ]
       )
 
     response.body
+    |> String.replace(~r/(branchs|name|seq)/, "\"\\g{1}\"")
+    |> String.replace("'", "\"")
     |> Jason.decode!()
     |> Map.fetch!("branchs")
     |> Enum.filter(fn json -> json["name"] |> String.contains?(keyword) end)
