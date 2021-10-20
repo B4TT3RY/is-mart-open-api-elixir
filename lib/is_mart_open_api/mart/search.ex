@@ -27,6 +27,11 @@ defmodule IsMartOpenApi.Search do
     |> Enum.filter(fn name -> name |> String.contains?(keyword) end)
   end
 
+  def search!("emart_everyday", keyword) do
+    IsMartOpenApi.Fetch.do_fetch_emart_everyday_list_json!(keyword)
+    |> Enum.map(fn json -> "#{json["name"]}:#{json["seq"]}" end)
+  end
+
   def search!(_, _) do
     []
   end
