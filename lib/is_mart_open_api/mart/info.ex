@@ -183,6 +183,56 @@ defmodule IsMartOpenApi.Info do
     }
   end
 
+  def info!("emart_everyday", name) do
+    document =
+      IsMartOpenApi.Fetch.do_fetch_emart_everyday_info_json!(name)
+      |> Floki.parse_document!()
+
+    time =
+      document
+      |> Floki.find("td[headers='shopTime']")
+      |> Floki.text()
+      |> String.split(" ~ ")
+
+    today = Timex.today()
+    now = Timex.now("Asia/Seoul")
+
+    open_time =
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(time |> Enum.at(0), "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
+    close_time = if time |> Enum.at(1) |> String.slice(0..1) == "24" do
+      {Date.to_erl(today), Time.to_erl(Timex.parse!("00:#{time |> Enum.at(1) |> String.slice(3..4)}", "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
+      |> Date.add(1)
+    else
+      {Date.to_erl(today), Time.to_erl(Timex.parse!(time |> Enum.at(1), "%H:%M", :strftime))}
+      |> NaiveDateTime.from_erl!()
+      |> DateTime.from_naive!("Asia/Seoul")
+    end
+    next_holiday = parse_emart_everyday_holiday(document |> Floki.find("td[headers='shopService']") |> Floki.text())
+
+    state = cond do
+      Timex.compare(now, next_holiday) == 0 ->
+        :holiday_closed
+      Timex.compare(now, open_time) == -1 ->
+        :before_open
+      Timex.compare(now, close_time) == 1 ->
+        :after_closed
+      true ->
+        :open
+    end
+
+    %Information {
+      name: (document |> Floki.find("p.title") |> Floki.text() |> String.trim()) <> "점",
+      state: state,
+      open_time: open_time |> Timex.format!("%H:%M:%S", :strftime),
+      close_time: close_time |> Timex.format!("%H:%M:%S", :strftime),
+      next_holiday: next_holiday |> Timex.format!("%Y-%m-%d", :strftime),
+    }
+  end
+
   def info!(_, _) do
     nil
   end
@@ -221,6 +271,23 @@ defmodule IsMartOpenApi.Info do
         Timex.compare(today, second) != 1 -> second
         true -> nil
       end
+    end
+  end
+
+  defp parse_emart_everyday_holiday(input) do
+    [ _, first_week, second_week, day ] = Regex.run(~r/매월 ([첫둘셋넷])째, ([첫둘셋넷])째주 ([월화수목금토일])요일/u, input)
+    first_week = week_to_number(first_week)
+    second_week = week_to_number(second_week)
+    day = day_to_number(day)
+
+    today = Timex.now("Asia/Seoul")
+
+    first = calculate_date_from_today(first_week, day)
+    second = calculate_date_from_today(second_week, day)
+    cond do
+      Timex.compare(today, first) != 1 -> first
+      Timex.compare(today, second) != 1 -> second
+      true -> nil
     end
   end
 
