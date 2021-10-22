@@ -17,7 +17,7 @@ defmodule IsMartOpenApi.Search do
 
     document
     |> Floki.find("span.name > a")
-    |> Enum.map(fn find -> find |> Floki.text end)
+    |> Enum.map(fn find -> find |> Floki.text() end)
     |> Enum.filter(fn name -> name |> String.contains?(keyword) end)
   end
 

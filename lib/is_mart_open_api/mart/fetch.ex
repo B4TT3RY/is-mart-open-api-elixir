@@ -19,16 +19,15 @@ defmodule IsMartOpenApi.Fetch do
       HTTPoison.post!(
         @base_url.emart,
         {:form,
-          [
-            srchMode: "jijum",
-            year: today.year,
-            month: today.month,
-            jMode: true,
-            strConfirmYN: "N",
-            searchType: search_type,
-            keyword: keyword
-          ]
-        },
+         [
+           srchMode: "jijum",
+           year: today.year,
+           month: today.month,
+           jMode: true,
+           strConfirmYN: "N",
+           searchType: search_type,
+           keyword: keyword
+         ]},
         [
           {"User-Agent", @user_agent}
         ]
@@ -45,12 +44,11 @@ defmodule IsMartOpenApi.Fetch do
       HTTPoison.post!(
         @base_url.homeplus,
         {:form,
-          [
-            { "__VIEWSTATE", @homeplus_viewstate },
-            { "ctl00$ContentPlaceHolder1$srch_name", keyword },
-            { "ctl00$ContentPlaceHolder1$storetype1", "on" }
-          ]
-        },
+         [
+           {"__VIEWSTATE", @homeplus_viewstate},
+           {"ctl00$ContentPlaceHolder1$srch_name", keyword},
+           {"ctl00$ContentPlaceHolder1$storetype1", "on"}
+         ]},
         [
           {"User-Agent", @user_agent}
         ]
@@ -74,10 +72,9 @@ defmodule IsMartOpenApi.Fetch do
       HTTPoison.post!(
         @base_url.emart_everyday_list,
         {:form,
-          [
-            { "region", "" },
-          ]
-        },
+         [
+           {"region", ""}
+         ]},
         [
           {"User-Agent", @user_agent}
         ]
@@ -97,10 +94,9 @@ defmodule IsMartOpenApi.Fetch do
       HTTPoison.post!(
         @base_url.emart_everyday_info,
         {:form,
-          [
-            { "seq", id }
-          ]
-        },
+         [
+           {"seq", id}
+         ]},
         [
           {"User-Agent", @user_agent}
         ]
