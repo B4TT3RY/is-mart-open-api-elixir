@@ -11,8 +11,8 @@ defmodule IsMartOpenApi.Fetch do
 
   @homeplus_viewstate "/wEPDwUJLTc2MDkzMDI3D2QWAmYPZBYCAgUPZBYCAgEPZBYCAgEPEGRkFgFmZBgBBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WAwUkY3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRzdG9yZXR5cGUxBSRjdGwwMCRDb250ZW50UGxhY2VIb2xkZXIxJHN0b3JldHlwZTIFJGN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkc3RvcmV0eXBlM+aYO9PJofU5uQQJJZRZ2bboir3I"
 
-  @spec do_fetch_emart_json!(search_type :: String.t(), keyword :: String.t()) :: list()
-  def do_fetch_emart_json!(search_type, keyword) do
+  @spec fetch_emart_json!(search_type :: String.t(), keyword :: String.t()) :: list()
+  def fetch_emart_json!(search_type, keyword) do
     today = Timex.today("Asia/Seoul")
 
     response =
@@ -38,8 +38,8 @@ defmodule IsMartOpenApi.Fetch do
     |> Map.fetch!("dataList")
   end
 
-  @spec do_fetch_homeplus_html!(keyword :: String.t()) :: String.t()
-  def do_fetch_homeplus_html!(keyword) do
+  @spec fetch_homeplus_html!(keyword :: String.t()) :: String.t()
+  def fetch_homeplus_html!(keyword) do
     response =
       HTTPoison.post!(
         @base_url.homeplus,
@@ -57,8 +57,8 @@ defmodule IsMartOpenApi.Fetch do
     response.body
   end
 
-  @spec do_fetch_costco_json!(keyword :: String.t()) :: list()
-  def do_fetch_costco_json!(keyword) do
+  @spec fetch_costco_json!(keyword :: String.t()) :: list()
+  def fetch_costco_json!(keyword) do
     response = HTTPoison.get!("#{@base_url.costco}#{keyword |> URI.encode()}")
 
     response.body
@@ -66,8 +66,8 @@ defmodule IsMartOpenApi.Fetch do
     |> Map.fetch!("data")
   end
 
-  @spec do_fetch_emart_everyday_list_json!(keyword :: String.t()) :: list()
-  def do_fetch_emart_everyday_list_json!(keyword) do
+  @spec fetch_emart_everyday_list_json!(keyword :: String.t()) :: list()
+  def fetch_emart_everyday_list_json!(keyword) do
     response =
       HTTPoison.post!(
         @base_url.emart_everyday_list,
@@ -88,8 +88,8 @@ defmodule IsMartOpenApi.Fetch do
     |> Enum.filter(fn json -> json["name"] |> String.contains?(keyword) end)
   end
 
-  @spec do_fetch_emart_everyday_info_json!(keyword :: String.t()) :: String.t()
-  def do_fetch_emart_everyday_info_json!(id) do
+  @spec fetch_emart_everyday_info_json!(keyword :: String.t()) :: String.t()
+  def fetch_emart_everyday_info_json!(id) do
     response =
       HTTPoison.post!(
         @base_url.emart_everyday_info,

@@ -7,7 +7,7 @@ defmodule IsMartOpenApi.Info do
   @spec info!(mart :: String.t(), name :: String.t()) :: Information | nil
   def info!("emart", name) do
     json =
-      IsMartOpenApi.Fetch.do_fetch_emart_json!("EM", name)
+      IsMartOpenApi.Fetch.fetch_emart_json!("EM", name)
       |> Enum.filter(fn element -> element["NAME"] == "이마트 " <> name end)
       |> Enum.at(0)
 
@@ -54,7 +54,7 @@ defmodule IsMartOpenApi.Info do
 
   def info!("traders", name) do
     json =
-      IsMartOpenApi.Fetch.do_fetch_emart_json!("TR", name)
+      IsMartOpenApi.Fetch.fetch_emart_json!("TR", name)
       |> Enum.filter(fn element -> element["NAME"] == "이마트 트레이더스 " <> name end)
       |> Enum.at(0)
 
@@ -101,7 +101,7 @@ defmodule IsMartOpenApi.Info do
 
   def info!("homeplus", name) do
     document =
-      IsMartOpenApi.Fetch.do_fetch_homeplus_html!(name)
+      IsMartOpenApi.Fetch.fetch_homeplus_html!(name)
       |> Floki.parse_document!()
 
     element =
@@ -171,7 +171,7 @@ defmodule IsMartOpenApi.Info do
 
   def info!("costco", name) do
     json =
-      IsMartOpenApi.Fetch.do_fetch_costco_json!(name)
+      IsMartOpenApi.Fetch.fetch_costco_json!(name)
       |> Enum.filter(fn element -> element["displayName"] == name end)
       |> Enum.at(0)
 
@@ -223,7 +223,7 @@ defmodule IsMartOpenApi.Info do
 
   def info!("emart_everyday", name) do
     document =
-      IsMartOpenApi.Fetch.do_fetch_emart_everyday_info_json!(name)
+      IsMartOpenApi.Fetch.fetch_emart_everyday_info_json!(name)
       |> Floki.parse_document!()
 
     time =
